@@ -267,7 +267,7 @@ describe("articles", () => {
         });
     });
     describe("sort_by query", () => {
-      it("allows the client to use the query sort_by=created_at which sorts the articles by created_at default descending order", () => {
+      it("allows the client to use the query sort_by=created_at which sorts the articles by created_at in descending order", () => {
         return request(app)
           .get("/api/articles?sort_by=created_at")
           .expect(200)
@@ -276,7 +276,7 @@ describe("articles", () => {
             expect(articles).toBeSortedBy("created_at", { descending: true });
           });
       });
-      it("allows the client to use the query sort_by=votes which sorts the articles by votes default descending order", () => {
+      it("allows the client to use the query sort_by=votes which sorts the articles by votes in descending order", () => {
         return request(app)
           .get("/api/articles?sort_by=votes")
           .expect(200)
@@ -286,7 +286,7 @@ describe("articles", () => {
             expect(articles).toBeSortedBy("votes", { descending: true });
           });
       });
-      it("allows the client to use the query sort_by=article_id which sorts the articles by article_id default descending order", () => {
+      it("allows the client to use the query sort_by=article_id which sorts the articles by article_id in descending order", () => {
         return request(app)
           .get("/api/articles?sort_by=article_id")
           .expect(200)
@@ -295,7 +295,7 @@ describe("articles", () => {
             expect(articles).toBeSortedBy("article_id", { descending: true });
           });
       });
-      it("allows the client to use the query sort_by=author which sorts the articles by author default descending order", () => {
+      it("allows the client to use the query sort_by=author which sorts the articles by author in descending order", () => {
         return request(app)
           .get("/api/articles?sort_by=author")
           .expect(200)
@@ -304,7 +304,7 @@ describe("articles", () => {
             expect(articles).toBeSortedBy("author", { descending: true });
           });
       });
-      it("allows the client to use the query sort_by=title which sorts the articles by title default descending order", () => {
+      it("allows the client to use the query sort_by=title which sorts the articles by title in descending order", () => {
         return request(app)
           .get("/api/articles?sort_by=title")
           .expect(200)
@@ -313,7 +313,7 @@ describe("articles", () => {
             expect(articles).toBeSortedBy("title", { descending: true });
           });
       });
-      it("allows the client to use the query sort_by=topic which sorts the articles by topic default descending order", () => {
+      it("allows the client to use the query sort_by=topic which sorts the articles by topic in descending order", () => {
         return request(app)
           .get("/api/articles?sort_by=topic")
           .expect(200)
@@ -322,7 +322,7 @@ describe("articles", () => {
             expect(articles).toBeSortedBy("topic", { descending: true });
           });
       });
-      it("allows the client to use the query sort_by=comment_count which sorts the articles by comment_count default descending order", () => {
+      it("allows the client to use the query sort_by=comment_count which sorts the articles by comment_count in descending order", () => {
         return request(app)
           .get("/api/articles?sort_by=comment_count")
           .expect(200)
@@ -333,7 +333,29 @@ describe("articles", () => {
             });
           });
       });
-      it("allows the returns a 400 status code and the msg 'bad request invalid data' if the client uses an in valid sort_by column", () => {
+      it("allows the client to use the query sort_by=comment_count which sorts the articles by comment_count in descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=comment_count")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("comment_count", {
+              descending: true,
+            });
+          });
+      });
+      it("defaults to sort_by=created_at", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", {
+              descending: true,
+            });
+          });
+      });
+      it("returns a 400 status code and the msg 'bad request invalid data' if the client uses an in valid sort_by column", () => {
         return request(app)
           .get("/api/articles?sort_by=invalid_column")
           .expect(400)
@@ -343,6 +365,45 @@ describe("articles", () => {
           });
       });
     });
+    describe.only("order desc or asc", ()=>{
+      it("allows the client to use the order the rerquest in descending order", ()=> {
+        return request(app)
+          .get("/api/articles?order=desc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", { descending: true });
+          });
+      })
+      it("allows the client to use the order the rerquest in ascending order", ()=> {
+        return request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", { descending: false });
+          });
+      })
+      it("defaults to descending order", ()=> {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", { descending: true });
+          });
+      })
+      it("returns status code 400 and the msg 'bad request in valid order by'", ()=> {
+        return request(app)
+          .get("/api/articles?order=invalidOrder")
+          .expect(400)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe('bad request in valid order by');
+          });
+      })
+
+    })
   });
 
   describe("getArticleCommentsByArticleId", () => {

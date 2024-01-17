@@ -24,7 +24,7 @@ exports.fetchArticlesById = (articleId) => {
     });
 };
 
-exports.fetchAllArticles = (topic, sortBy = 'created_at') => {
+exports.fetchAllArticles = (topic, sortBy = 'created_at', order = 'desc') => {
   return fetchAllTopics()
   .then((result) => {
     const validTopics = result.map((topicObj) => {
@@ -35,6 +35,7 @@ exports.fetchAllArticles = (topic, sortBy = 'created_at') => {
     } else {
       const value = [];
       const greenLightSortBys = ["votes", "comment_count", "article_id", "author", "title", "topic", "created_at"]
+      const greenLightOrder = ['desc', 'asc']
 
       let query = `SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments. article_id)::int AS comment_count
       FROM articles
@@ -48,9 +49,14 @@ exports.fetchAllArticles = (topic, sortBy = 'created_at') => {
 
       query += ` GROUP BY articles.article_id`
       if (greenLightSortBys.includes(sortBy)) {
-        query += ` ORDER BY ${sortBy} DESC;`
+        query += ` ORDER BY ${sortBy}`
       } else {
         return Promise.reject({status: 400, msg: "bad request invalid sort_by"})
+      }
+      if (greenLightOrder.includes(order)) {
+        query += ` ${order};`
+      } else {
+        return Promise.reject({status: 400, msg: "bad request in valid order by"})
       }
       return db.query(query, value)
       .then(({ rows }) => {
