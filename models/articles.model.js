@@ -24,7 +24,7 @@ exports.fetchArticlesById = (articleId) => {
     });
 };
 
-exports.fetchAllArticles = (topic) => {
+exports.fetchAllArticles = (topic, sortBy = 'created_at') => {
   return fetchAllTopics()
   .then((result) => {
     const validTopics = result.map((topicObj) => {
@@ -34,17 +34,24 @@ exports.fetchAllArticles = (topic) => {
       return Promise.reject({ status: 404, msg: "topic does not exist" });
     } else {
       const value = [];
-      let whereString = "";
+      const greenLightSortBys = ["votes", "comment_count", "article_id", "author", "title", "topic", "created_at"]
+
+      let query = `SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments. article_id)::int AS comment_count
+      FROM articles
+      LEFT JOIN comments ON comments.article_id = articles.article_id
+      `;
+
       if (topic) {
-        whereString = `WHERE topic = $1`;
+        query += ` WHERE topic = $1`;
         value.push(topic);
       }
-      const query = `SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments. article_id)::int AS comment_count
-         FROM articles
-         LEFT JOIN comments ON comments.article_id = articles.article_id
-         ${whereString}
-         GROUP BY articles.article_id
-         ORDER BY created_at DESC;`;
+
+      query += ` GROUP BY articles.article_id`
+      if (greenLightSortBys.includes(sortBy)) {
+        query += ` ORDER BY ${sortBy} DESC;`
+      } else {
+        return Promise.reject({status: 400, msg: "bad request invalid sort_by"})
+      }
       return db.query(query, value)
       .then(({ rows }) => {
         return rows;

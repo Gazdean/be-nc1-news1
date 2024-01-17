@@ -137,26 +137,26 @@ describe("articles", () => {
           expect(msg).toBe("bad request invalid data type");
         });
     });
-    it("returns the article with a comment_count key value pair", ()=>{
+    it("returns the article with a comment_count key value pair", () => {
       return request(app)
         .get("/api/articles/9")
         .expect(200)
         .then(({ body }) => {
           const { article } = body;
-          expect(typeof article.comment_count).toBe("number")
+          expect(typeof article.comment_count).toBe("number");
           expect(article.comment_count).toBe(2);
         });
-    })
-    it("returns the article with a zero comment_count if it has no comments", ()=>{
+    });
+    it("returns the article with a zero comment_count if it has no comments", () => {
       return request(app)
         .get("/api/articles/11")
         .expect(200)
         .then(({ body }) => {
           const { article } = body;
-          expect(typeof article.comment_count).toBe("number")
+          expect(typeof article.comment_count).toBe("number");
           expect(article.comment_count).toBe(0);
         });
-    })
+    });
   });
   describe("getArticles", () => {
     it("returns status code 200 and array of article objects with the correct keys", () => {
@@ -218,11 +218,11 @@ describe("articles", () => {
         .then(({ body }) => {
           const { articles } = body;
           articles.forEach((article) => {
-            if(article.article_id === 1){
-            expect(article.comment_count).toBe(11);
+            if (article.article_id === 1) {
+              expect(article.comment_count).toBe(11);
             }
-            if(article.article_id === 7){
-            expect(article.comment_count).toBe(0);
+            if (article.article_id === 7) {
+              expect(article.comment_count).toBe(0);
             }
           });
         });
@@ -266,6 +266,83 @@ describe("articles", () => {
           expect(articles.length).toBe(0);
         });
     });
+    describe("sort_by query", () => {
+      it("allows the client to use the query sort_by=created_at which sorts the articles by created_at default descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=created_at")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", { descending: true });
+          });
+      });
+      it("allows the client to use the query sort_by=votes which sorts the articles by votes default descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            console.log(articles, "test <<<<<<<<<<<<");
+            expect(articles).toBeSortedBy("votes", { descending: true });
+          });
+      });
+      it("allows the client to use the query sort_by=article_id which sorts the articles by article_id default descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=article_id")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("article_id", { descending: true });
+          });
+      });
+      it("allows the client to use the query sort_by=author which sorts the articles by author default descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=author")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("author", { descending: true });
+          });
+      });
+      it("allows the client to use the query sort_by=title which sorts the articles by title default descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=title")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("title", { descending: true });
+          });
+      });
+      it("allows the client to use the query sort_by=topic which sorts the articles by topic default descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=topic")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("topic", { descending: true });
+          });
+      });
+      it("allows the client to use the query sort_by=comment_count which sorts the articles by comment_count default descending order", () => {
+        return request(app)
+          .get("/api/articles?sort_by=comment_count")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("comment_count", {
+              descending: true,
+            });
+          });
+      });
+      it("allows the returns a 400 status code and the msg 'bad request invalid data' if the client uses an in valid sort_by column", () => {
+        return request(app)
+          .get("/api/articles?sort_by=invalid_column")
+          .expect(400)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe("bad request invalid sort_by")
+          });
+      });
+    });
   });
 
   describe("getArticleCommentsByArticleId", () => {
@@ -297,7 +374,7 @@ describe("articles", () => {
           expect(comments).toBeSortedBy("created_at", { descending: true });
         });
     });
-    it("returns a status code 200 and an empty array if its a valid article_id but it has no comments", ()=> {
+    it("returns a status code 200 and an empty array if its a valid article_id but it has no comments", () => {
       return request(app)
         .get("/api/articles/2/comments")
         .expect(200)
@@ -305,7 +382,7 @@ describe("articles", () => {
           const { comments } = body;
           expect(comments.length).toBe(0);
         });
-    })
+    });
     it("returns a status code 404 with the message 'article_id does not exist' if passed a valid but non exsistant article_id", () => {
       return request(app)
         .get("/api/articles/2000/comments")
@@ -537,11 +614,11 @@ describe("users", () => {
         expect(users.length).toBe(4);
         users.forEach((user) => {
           expect(Object.keys(user).length).toBe(3),
-          expect(user).toMatchObject({
-            username: expect.any(String),
-            name: expect.any(String),
-            avatar_url: expect.any(String),
-          });
+            expect(user).toMatchObject({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            });
         });
       });
   });
@@ -560,4 +637,3 @@ describe("users", () => {
       });
   });
 });
-
