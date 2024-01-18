@@ -1,5 +1,5 @@
 const db = require("../db/connection.js");
-const userNameValidation = require("../api-utils.js")
+
 
 exports.fetchAllUsers = () => {
   return db
