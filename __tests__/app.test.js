@@ -62,7 +62,6 @@ describe("endpoints", () => {
         .expect(200)
         .then(({ body }) => {
           const { endpoints } = body;
-          console.log(endpoints)
           const expected = ["description", "queries", "exampleResponse"];
           for (const key in endpoints) {
             expect(Object.keys(endpoints[key])).toEqual(expected);
@@ -283,7 +282,6 @@ describe("articles", () => {
           .expect(200)
           .then(({ body }) => {
             const { articles } = body;
-            console.log(articles, "test <<<<<<<<<<<<");
             expect(articles).toBeSortedBy("votes", { descending: true });
           });
       });
@@ -362,12 +360,12 @@ describe("articles", () => {
           .expect(400)
           .then(({ body }) => {
             const { msg } = body;
-            expect(msg).toBe("bad request invalid sort_by")
+            expect(msg).toBe("bad request invalid sort_by");
           });
       });
     });
-    describe("order desc or asc", ()=>{
-      it("allows the client to use the order the rerquest in descending order", ()=> {
+    describe("order desc or asc", () => {
+      it("allows the client to use the order the rerquest in descending order", () => {
         return request(app)
           .get("/api/articles?order=desc")
           .expect(200)
@@ -375,8 +373,8 @@ describe("articles", () => {
             const { articles } = body;
             expect(articles).toBeSortedBy("created_at", { descending: true });
           });
-      })
-      it("allows the client to use the order the rerquest in ascending order", ()=> {
+      });
+      it("allows the client to use the order the rerquest in ascending order", () => {
         return request(app)
           .get("/api/articles?order=asc")
           .expect(200)
@@ -384,8 +382,8 @@ describe("articles", () => {
             const { articles } = body;
             expect(articles).toBeSortedBy("created_at", { descending: false });
           });
-      })
-      it("defaults to descending order", ()=> {
+      });
+      it("defaults to descending order", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
@@ -393,18 +391,17 @@ describe("articles", () => {
             const { articles } = body;
             expect(articles).toBeSortedBy("created_at", { descending: true });
           });
-      })
-      it("returns status code 400 and the msg 'bad request in valid order by'", ()=> {
+      });
+      it("returns status code 400 and the msg 'bad request in valid order by'", () => {
         return request(app)
           .get("/api/articles?order=invalidOrder")
           .expect(400)
           .then(({ body }) => {
             const { msg } = body;
-            expect(msg).toBe('bad request in valid order by');
+            expect(msg).toBe("bad request in valid order by");
           });
-      })
-
-    })
+      });
+    });
   });
 
   describe("getArticleCommentsByArticleId", () => {
@@ -667,35 +664,64 @@ describe("comments", () => {
 });
 
 describe("users", () => {
-  it("returns status code 200 and an array of user objects with the correct properties", () => {
-    return request(app)
-      .get("/api/users")
-      .expect(200)
-      .then(({ body }) => {
-        const { users } = body;
-        expect(users.length).toBe(4);
-        users.forEach((user) => {
-          expect(Object.keys(user).length).toBe(3),
-            expect(user).toMatchObject({
-              username: expect.any(String),
-              name: expect.any(String),
-              avatar_url: expect.any(String),
+  describe("/api/users", () => {
+    it("returns status code 200 and an array of user objects with the correct properties", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const { users } = body;
+          expect(users.length).toBe(4);
+          users.forEach((user) => {
+            expect(Object.keys(user).length).toBe(3),
+              expect(user).toMatchObject({
+                username: expect.any(String),
+                name: expect.any(String),
+                avatar_url: expect.any(String),
+              });
+          });
+        });
+    });
+    it("rteurns the correct data", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const { users } = body;
+          expect(users[0]).toMatchObject({
+            username: "butter_bridge",
+            name: "jonny",
+            avatar_url:
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          });
+        });
+    });
+  });
+  describe.only("/api/users/:username", () => {
+    it("responds with a 200 status code and a user object", () => {
+      return request(app)
+        .get("/api/users/butter_bridge")
+        .expect(200)
+        .then(({ body }) => {
+         
+          const { user } = body;
+          console.log(user[0], "test")
+          expect(Object.keys(user[0]).length).toBe(3)
+            expect(user[0]).toMatchObject({
+              username: 'butter_bridge',
+              name: 'jonny',
+              avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
             });
         });
-      });
-  });
-  it("rteurns the correct data", () => {
-    return request(app)
-      .get("/api/users")
-      .expect(200)
-      .then(({ body }) => {
-        const { users } = body;
-        expect(users[0]).toMatchObject({
-          username: "butter_bridge",
-          name: "jonny",
-          avatar_url:
-            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+    });
+    it("responds with a 400 status code and the message 'bad request username does not exist'", () => {
+      return request(app)
+        .get("/api/users/invalid")
+        .expect(400)
+        .then(({ body }) => {
+          const { msg } = body;
+          expect(msg).toBe("bad request username does not exist")
         });
-      });
+    });
   });
 });
