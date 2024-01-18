@@ -630,36 +630,134 @@ describe("articles", () => {
 });
 
 describe("comments", () => {
-  it("allows the client to delete an article comment by comment_id", () => {
-    return request(app)
-      .delete("/api/comments/1")
-      .expect(204)
-      .then(() => {
-        return db.query(`SELECT * FROM comments`).then(({ rows }) => {
-          expect(rows.length).toBe(17);
-          rows.forEach((comment) => {
-            expect(comment.comment_id).not.toBe(1);
+  describe("DELETE /api/comments/:comment_id", () => {
+    it("allows the client to delete an article comment by comment_id", () => {
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then(() => {
+          return db.query(`SELECT * FROM comments`).then(({ rows }) => {
+            expect(rows.length).toBe(17);
+            rows.forEach((comment) => {
+              expect(comment.comment_id).not.toBe(1);
+            });
           });
         });
-      });
+    });
+    it("returns a status code 404 with the message 'comment_id does not exist' if passed a valid but non exsistant comment_id", () => {
+      return request(app)
+        .delete("/api/comments/2000")
+        .expect(404)
+        .then(({ body }) => {
+          const { msg } = body;
+          expect(msg).toBe("comment_id does not exist");
+        });
+    });
+    it("returns a status code 400 with the message 'bad request' if passed an invalid comment_id", () => {
+      return request(app)
+        .delete("/api/comments/inValid")
+        .expect(400)
+        .then(({ body }) => {
+          const { msg } = body;
+          expect(msg).toBe("bad request invalid data type");
+        });
+    });
   });
-  it("returns a status code 404 with the message 'comment_id does not exist' if passed a valid but non exsistant comment_id", () => {
-    return request(app)
-      .delete("/api/comments/2000")
-      .expect(404)
-      .then(({ body }) => {
-        const { msg } = body;
-        expect(msg).toBe("comment_id does not exist");
-      });
-  });
-  it("returns a status code 400 with the message 'bad request' if passed an invalid comment_id", () => {
-    return request(app)
-      .delete("/api/comments/inValid")
-      .expect(400)
-      .then(({ body }) => {
-        const { msg } = body;
-        expect(msg).toBe("bad request invalid data type");
-      });
+  describe("PATCH /api/comments/:comment_id", () => {
+    it("increases the votes by the required amount when sent a positive inc_votes value and returns status code 200 and the updated comment object with the correct values", () => {
+      return request(app)
+        .patch("/api/comments/2")
+        .send({ inc_votes: 3 })
+        .expect(200)
+        .then(({ body }) => {
+          const { comment } = body;
+          expect(comment).toMatchObject({
+            body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+            votes: 17,
+            author: "butter_bridge",
+            article_id: 1,
+            created_at: expect.any(String),
+          });
+        });
+    });
+    it("decreases the votes by the required amount when sent a negative inc_votes value and returns status code 200 and the updated comment object with the correct values", () => {
+      return request(app)
+        .patch("/api/comments/2")
+        .send({ inc_votes: -3 })
+        .expect(200)
+        .then(({ body }) => {
+          const { comment } = body;
+          expect(comment).toMatchObject({
+            body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+            votes: 11,
+            author: "butter_bridge",
+            article_id: 1,
+            created_at: expect.any(String),
+          });
+        });
+    });
+    it("doesnt let the votes value be less than 0", () => {
+      return request(app)
+        .patch("/api/comments/2")
+        .send({ inc_votes: -16 })
+        .expect(200)
+        .then(({ body }) => {
+          const { comment } = body;
+          expect(comment.votes).toBe(0);
+        });
+    });
+    it("returns status code 404 and the msg 'comment_id doesnt exist'", () => {
+      return request(app)
+        .patch("/api/comments/9999")
+        .send({ inc_votes: 4 })
+        .expect(404)
+        .then(({ body }) => {
+          const { msg } = body;
+          expect(msg).toBe('comment_id doesnt exist');
+        });
+    });
+    it("returns status code 400 and the msg 'bad request invalid data type' when the comment_id isnt a number", () => {
+      return request(app)
+        .patch("/api/comments/invalid")
+        .send({ inc_votes: 4 })
+        .expect(400)
+        .then(({ body }) => {
+          const { msg } = body;
+          expect(msg).toBe('bad request invalid data type');
+        });
+    });
+    it("returns status code 400 and the msg 'bad request invalid data type' when the inc_votes value is not a number", () => {
+      return request(app)
+        .patch("/api/comments/invalid")
+        .send({ inc_votes: "invalid" })
+        .expect(400)
+        .then(({ body }) => {
+          const { msg } = body;
+          expect(msg).toBe('bad request invalid data type');
+        });
+    });
+    it("returns status code 400 and the msg 'bad request invalid data type' if the client tries to patch any other than votes", () => {
+      return request(app)
+        .patch("/api/comments/2")
+        .send({ author: "John" })
+        .expect(400)
+        .then(({ body }) => {
+          const { msg } = body;
+          expect(msg).toBe('bad request invalid data type');
+        });
+    });
+    it("returns status code 400 and the msg 'bad request must include inc_votes value' if the client doesnt include inc_votes in the request", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send()
+        .expect(400)
+        .then(({ body }) => {
+          const { msg } = body;
+          expect(msg).toBe('bad request must include inc_votes value');
+        });
+    });
+
+
   });
 });
 
@@ -703,14 +801,14 @@ describe("users", () => {
         .get("/api/users/butter_bridge")
         .expect(200)
         .then(({ body }) => {
-         
           const { user } = body;
-          expect(Object.keys(user[0]).length).toBe(3)
-            expect(user[0]).toMatchObject({
-              username: 'butter_bridge',
-              name: 'jonny',
-              avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
-            });
+          expect(Object.keys(user[0]).length).toBe(3);
+          expect(user[0]).toMatchObject({
+            username: "butter_bridge",
+            name: "jonny",
+            avatar_url:
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          });
         });
     });
     it("responds with a 400 status code and the message 'bad request username does not exist'", () => {
@@ -719,7 +817,7 @@ describe("users", () => {
         .expect(400)
         .then(({ body }) => {
           const { msg } = body;
-          expect(msg).toBe("bad request username does not exist")
+          expect(msg).toBe("bad request username does not exist");
         });
     });
   });

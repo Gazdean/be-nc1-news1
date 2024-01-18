@@ -162,8 +162,7 @@ exports.updateArticlesByArticleId = (articleId, incVotes) => {
             `
         SELECT * FROM articles
         WHERE article_id = $1;
-      `,
-            [articleId]
+      `, [articleId]
           )
           .then(({ rows }) => {
             return rows[0];
