@@ -62,6 +62,7 @@ describe("endpoints", () => {
         .expect(200)
         .then(({ body }) => {
           const { endpoints } = body;
+          console.log(endpoints)
           const expected = ["description", "queries", "exampleResponse"];
           for (const key in endpoints) {
             expect(Object.keys(endpoints[key])).toEqual(expected);
@@ -365,7 +366,7 @@ describe("articles", () => {
           });
       });
     });
-    describe.only("order desc or asc", ()=>{
+    describe("order desc or asc", ()=>{
       it("allows the client to use the order the rerquest in descending order", ()=> {
         return request(app)
           .get("/api/articles?order=desc")
