@@ -697,7 +697,7 @@ describe("users", () => {
         });
     });
   });
-  describe.only("/api/users/:username", () => {
+  describe("/api/users/:username", () => {
     it("responds with a 200 status code and a user object", () => {
       return request(app)
         .get("/api/users/butter_bridge")
@@ -705,7 +705,6 @@ describe("users", () => {
         .then(({ body }) => {
          
           const { user } = body;
-          console.log(user[0], "test")
           expect(Object.keys(user[0]).length).toBe(3)
             expect(user[0]).toMatchObject({
               username: 'butter_bridge',
