@@ -365,7 +365,7 @@ describe("articles", () => {
       });
     });
     describe("order desc or asc", () => {
-      it("allows the client to use the order the rerquest in descending order", () => {
+      it("allows the client to use the order the request in descending order", () => {
         return request(app)
           .get("/api/articles?order=desc")
           .expect(200)
@@ -644,6 +644,7 @@ describe("comments", () => {
           });
         });
     });
+
     it("returns a status code 404 with the message 'comment_id does not exist' if passed a valid but non exsistant comment_id", () => {
       return request(app)
         .delete("/api/comments/2000")
@@ -728,7 +729,7 @@ describe("comments", () => {
     });
     it("returns status code 400 and the msg 'bad request invalid data type' when the inc_votes value is not a number", () => {
       return request(app)
-        .patch("/api/comments/invalid")
+        .patch("/api/comments/2")
         .send({ inc_votes: "invalid" })
         .expect(400)
         .then(({ body }) => {
@@ -780,7 +781,7 @@ describe("users", () => {
           });
         });
     });
-    it("rteurns the correct data", () => {
+    it("returns the correct data", () => {
       return request(app)
         .get("/api/users")
         .expect(200)
@@ -796,7 +797,7 @@ describe("users", () => {
     });
   });
   describe("/api/users/:username", () => {
-    it("responds with a 200 status code and a user object", () => {
+    it("responds with a 200 status code and a user object when a specific user is requested", () => {
       return request(app)
         .get("/api/users/butter_bridge")
         .expect(200)
@@ -811,13 +812,13 @@ describe("users", () => {
           });
         });
     });
-    it("responds with a 400 status code and the message 'bad request username does not exist'", () => {
+    it("responds with a 404 status code and the message 'username does not exist' when a valid but none existant username is sent", () => {
       return request(app)
-        .get("/api/users/invalid")
-        .expect(400)
+        .get("/api/users/nonExistent")
+        .expect(404)
         .then(({ body }) => {
           const { msg } = body;
-          expect(msg).toBe("bad request username does not exist");
+          expect(msg).toBe("username does not exist");
         });
     });
   });
