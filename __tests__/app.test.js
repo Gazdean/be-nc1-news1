@@ -737,7 +737,7 @@ describe("comments", () => {
           expect(msg).toBe('bad request invalid data type');
         });
     });
-    it("returns status code 400 and the msg 'bad request invalid data type' if the client tries to patch any other than votes", () => {
+    it("returns status code 400 and the msg 'bad request invalid data type' if the client tries to patch an invalid column", () => {
       return request(app)
         .patch("/api/comments/2")
         .send({ author: "John" })
