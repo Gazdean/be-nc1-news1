@@ -11,8 +11,8 @@
         }
       },
       "GET /api/articles": {
-        "description": "serves an array of all articles",
-        "queries": ["author", "topic", "sort_by", "order"],
+        "description": "serves an array of all articles, allows the client to use queries and to select amount of results with the limit query and which page of results with the p query",
+        "queries": ["author", "topic", "sort_by", "order", "limit", "p"],
         "exampleResponse": {
           "articles": [
             {
