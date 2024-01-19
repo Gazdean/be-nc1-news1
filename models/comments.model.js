@@ -23,10 +23,9 @@ exports.updateCommentsByCommentId = (commentId, incVotes, bodyKeys) => {
     return db
       .query(
         `
-        SELECT votes FROM comments
-        WHERE comment_id = $1;
-      `,
-        [commentId]
+          SELECT votes FROM comments
+          WHERE comment_id = $1;
+        `, [commentId]
       )
       .then(({ rows }) => {
         if (rows.length === 0) {

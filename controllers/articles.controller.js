@@ -4,8 +4,10 @@ const {
   fetchArticleCommentsByArticleId,
   createArticleCommentsByArticleId,
   updateArticlesByArticleId,
+  createArticles
 } = require("../models/articles.model.js");
 
+const {fetchUsersByUsername} = require("../models/users.model.js")
 const {checkValueExists} = require("../api-utils.js")
 
 exports.getArticlesById = (req, res, next) => {
@@ -67,3 +69,16 @@ exports.patchArticlesByArticleId = (req, res, next) => {
     .catch((err) => {
       next(err)})
 };
+
+exports.postArticles = (req, res, next) => {
+  const articleDataObj = req.body
+  const username = req.body.author
+  const topic= req.body.topic
+  const allPromises = Promise.all([fetchUsersByUsername(username), checkValueExists(topic, "slug", "topics"), createArticles(articleDataObj)])
+  allPromises
+  .then(result =>{
+    const article = result[2]
+    res.status(201).send({article})
+  }).catch(next)
+}
+

@@ -627,7 +627,179 @@ describe("articles", () => {
         });
     });
   });
-});
+
+  describe("postArticle", () => {
+    it("returns a 201 status code and the created article", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "hey",
+          body: "wowzers",
+          topic: "mitch",
+          article_img_url: "https://validurl",
+        })
+        .expect(201)
+        .then(( {body} ) => {
+          const article = body.article
+          expect(Object.keys(article).length).toBe(9)
+          expect(article.author).toBe("butter_bridge"),
+          expect(article.title).toBe("hey"),
+          expect(article.body).toBe("wowzers"),
+          expect(article.topic).toBe("mitch"),
+          expect(article.article_img_url).toBe("https://validurl"),
+          expect(typeof article.article_id).toBe("number"),
+          expect(article.votes).toBe(0),
+          expect(typeof article.created_at).toBe("string"),
+          expect(article.comment_count).toBe(0)
+        })
+    });
+    it("ignores extra key value pairs and returns a 201 status code and the created article", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "hey",
+          body: "wowzers",
+          topic: "mitch",
+          article_img_url: "https://validurl",
+          number: 9
+        })
+        .expect(201)
+        .then(( {body} ) => {
+          const article = body.article
+          expect(Object.keys(article).length).toBe(9)
+          expect(article.author).toBe("butter_bridge"),
+          expect(article.title).toBe("hey"),
+          expect(article.body).toBe("wowzers"),
+          expect(article.topic).toBe("mitch"),
+          expect(article.article_img_url).toBe("https://validurl"),
+          expect(typeof article.article_id).toBe("number"),
+          expect(article.votes).toBe(0),
+          expect(typeof article.created_at).toBe("string"),
+          expect(article.comment_count).toBe(0)
+        })
+    });
+    it("returns a 400 status code and the msg 'bad request invalid data type' if author is not a string", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: true,
+          title: "hello",
+          body: "wowzers",
+          topic: "mitch",
+          article_img_url: "https://validurl",
+        })
+        .expect(400)
+        .then(( {body} ) => {
+          expect(body.msg).toBe("bad request invalid data type")
+        })
+    });
+    it("returns a 400 status code and the msg 'bad request invalid data type' if title is not a string", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: 1,
+          body: "wowzers",
+          topic: "mitch",
+          article_img_url: "https://validurl",
+        })
+        .expect(400)
+        .then(( {body} ) => {
+          expect(body.msg).toBe("bad request invalid data type")
+        })
+    });
+    it("returns a 400 status code and the msg 'bad request invalid data type' if body is not a string", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "hello",
+          body: 3000,
+          topic: "mitch",
+          article_img_url: "https://validurl",
+        })
+        .expect(400)
+        .then(( {body} ) => {
+          expect(body.msg).toBe("bad request invalid data type")
+        })
+    });
+    it("returns a 400 status code and the msg 'bad request invalid data type' if topic is not a string", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "hello",
+          body: "wowzers",
+          topic: false,
+          article_img_url: "https://validurl",
+        })
+        .expect(400)
+        .then(( {body} ) => {
+          expect(body.msg).toBe("bad request invalid data type")
+        })
+    });
+    it("returns a 400 status code and the msg 'bad request invalid data type' if article_img_url is not a string", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "hello",
+          body: "wowzers",
+          topic: "mitch",
+          article_img_url: 1,
+        })
+        .expect(400)
+        .then(( {body} ) => {
+          expect(body.msg).toBe("bad request invalid data type")
+        })
+    });
+    it("returns a 400 status code and the msg 'bad request all requested properties are required' if the client doesnt supply the correct data", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "hello",
+          body: "wowzers",
+        })
+        .expect(400)
+        .then(( {body} ) => {
+          expect(body.msg).toBe("bad request all requested properties are required")
+        })
+    });
+    it("returns a 400 status code and the msg 'username does not exist' if sent an author thats not in users", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "geraldine",
+          title: "hey",
+          body: "wowzers",
+          topic: "mitch",
+          article_img_url: "https://validurl",
+        })
+        .expect(404)
+        .then(( {body} ) => {
+          expect(body.msg).toBe("username does not exist")
+        })
+    });
+    it("returns a 400 status code and the msg 'slug does not exist' if sent a topic thats not in topics", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "hey",
+          body: "wowzers",
+          topic: "the time is now",
+          article_img_url: "https://validurl",
+        })
+        .expect(404)
+        .then(( {body} ) => {
+          expect(body.msg).toBe("slug does not exist")
+        })
+    });
+  });
+})
 
 describe("comments", () => {
   describe("DELETE /api/comments/:comment_id", () => {
@@ -714,7 +886,7 @@ describe("comments", () => {
         .expect(404)
         .then(({ body }) => {
           const { msg } = body;
-          expect(msg).toBe('comment_id doesnt exist');
+          expect(msg).toBe("comment_id doesnt exist");
         });
     });
     it("returns status code 400 and the msg 'bad request invalid data type' when the comment_id isnt a number", () => {
@@ -724,7 +896,7 @@ describe("comments", () => {
         .expect(400)
         .then(({ body }) => {
           const { msg } = body;
-          expect(msg).toBe('bad request invalid data type');
+          expect(msg).toBe("bad request invalid data type");
         });
     });
     it("returns status code 400 and the msg 'bad request invalid data type' when the inc_votes value is not a number", () => {
@@ -734,17 +906,17 @@ describe("comments", () => {
         .expect(400)
         .then(({ body }) => {
           const { msg } = body;
-          expect(msg).toBe('bad request invalid data type');
+          expect(msg).toBe("bad request invalid data type");
         });
     });
     it("returns status code 400 and the msg 'bad request invalid data type' if the client tries to patch an invalid column", () => {
       return request(app)
         .patch("/api/comments/2")
-        .send({ author: "John" })
+        .send({ author: 2 })
         .expect(400)
         .then(({ body }) => {
           const { msg } = body;
-          expect(msg).toBe('bad request invalid data type');
+          expect(msg).toBe("bad request invalid data type");
         });
     });
     it("returns status code 400 and the msg 'bad request must include inc_votes value' if the client doesnt include inc_votes in the request", () => {
@@ -754,11 +926,9 @@ describe("comments", () => {
         .expect(400)
         .then(({ body }) => {
           const { msg } = body;
-          expect(msg).toBe('bad request must include inc_votes value');
+          expect(msg).toBe("bad request must include inc_votes value");
         });
     });
-
-
   });
 });
 

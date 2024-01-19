@@ -19,7 +19,7 @@ exports.fetchUsersByUsername = (username) => {
       `
         SELECT * FROM users
         WHERE username = $1
-    `, [username]
+      `, [username]
     )
     .then(({ rows }) => {
       if (rows.length === 0) {

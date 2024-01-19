@@ -24,9 +24,8 @@ exports.fetchArticlesById = (articleId) => {
     });
 };
 
-exports.fetchAllArticles = (topic, sortBy = 'created_at', order = 'desc') => {
-  return fetchAllTopics()
-  .then((result) => {
+exports.fetchAllArticles = (topic, sortBy = "created_at", order = "desc") => {
+  return fetchAllTopics().then((result) => {
     const validTopics = result.map((topicObj) => {
       return topicObj.slug;
     });
@@ -34,8 +33,16 @@ exports.fetchAllArticles = (topic, sortBy = 'created_at', order = 'desc') => {
       return Promise.reject({ status: 404, msg: "topic does not exist" });
     } else {
       const value = [];
-      const greenLightSortBys = ["votes", "comment_count", "article_id", "author", "title", "topic", "created_at"]
-      const greenLightOrder = ['desc', 'asc']
+      const greenLightSortBys = [
+        "votes",
+        "comment_count",
+        "article_id",
+        "author",
+        "title",
+        "topic",
+        "created_at",
+      ];
+      const greenLightOrder = ["desc", "asc"];
 
       let query = `SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments. article_id)::int AS comment_count
       FROM articles
@@ -47,22 +54,27 @@ exports.fetchAllArticles = (topic, sortBy = 'created_at', order = 'desc') => {
         value.push(topic);
       }
 
-      query += ` GROUP BY articles.article_id`
+      query += ` GROUP BY articles.article_id`;
       if (greenLightSortBys.includes(sortBy)) {
-        query += ` ORDER BY ${sortBy}`
+        query += ` ORDER BY ${sortBy}`;
       } else {
-        return Promise.reject({status: 400, msg: "bad request invalid sort_by"})
+        return Promise.reject({
+          status: 400,
+          msg: "bad request invalid sort_by",
+        });
       }
       if (greenLightOrder.includes(order)) {
-        query += ` ${order};`
+        query += ` ${order};`;
       } else {
-        return Promise.reject({status: 400, msg: "bad request in valid order by"})
+        return Promise.reject({
+          status: 400,
+          msg: "bad request in valid order by",
+        });
       }
-      return db.query(query, value)
-      .then(({ rows }) => {
+      return db.query(query, value).then(({ rows }) => {
         return rows;
       });
-    };
+    }
   });
 };
 
@@ -77,7 +89,7 @@ exports.fetchArticleCommentsByArticleId = (articleId) => {
       [articleId]
     )
     .then(({ rows }) => {
-       return rows;
+      return rows;
     });
 };
 
@@ -103,7 +115,10 @@ exports.createArticleCommentsByArticleId = (articleId, username, body) => {
       )
       .then(({ rows }) => {
         if (rows.length === 0) {
-          return Promise.reject({ status: 404, msg: "username does not exist" });
+          return Promise.reject({
+            status: 404,
+            msg: "username does not exist",
+          });
         } else {
           return db
             .query(
@@ -144,17 +159,16 @@ exports.updateArticlesByArticleId = (articleId, incVotes) => {
         [articleId]
       )
       .then(({ rows }) => {
-          const existingVotes = rows[0].votes;
-          const updatedVotes = existingVotes + incVotes;
-          return db.query(
-            `
+        const existingVotes = rows[0].votes;
+        const updatedVotes = existingVotes + incVotes;
+        return db.query(
+          `
       UPDATE articles
       SET votes = $1
       WHERE article_id = $2;
     `,
-            [updatedVotes, articleId]
-          );
-        
+          [updatedVotes, articleId]
+        );
       })
       .then(() => {
         return db
@@ -162,11 +176,45 @@ exports.updateArticlesByArticleId = (articleId, incVotes) => {
             `
         SELECT * FROM articles
         WHERE article_id = $1;
-      `, [articleId]
+      `,
+            [articleId]
           )
           .then(({ rows }) => {
             return rows[0];
           });
       });
+  }
+};
+
+exports.createArticles = (articleDataObj) => {
+  const { author, title, body, topic, article_img_url } = articleDataObj;
+  const values = [author, title, body, topic, article_img_url];
+
+  const validateDataType = values.map(value =>{
+    if (typeof value === "string") return value
+  })
+  if (values.includes(undefined)) {
+    return Promise.reject({status: 400, msg: "bad request all requested properties are required"})
+  } else if (validateDataType.includes(undefined)) {
+    return Promise.reject({status: 400, msg: "bad request invalid data type"})
+  } else {
+  return db
+    .query(
+      `
+      INSERT INTO articles
+      (author, title, body, topic, article_img_url)
+      VALUES
+      ($1, $2, $3, $4, $5) 
+      RETURNING *;
+    `,
+      values
+    )
+    .then(({ rows }) => {
+      const articleId = rows[0].article_id;
+      return this.fetchArticlesById(articleId)
+    })
+    .then((result) => {
+      return result;
+    });
   }
 };
