@@ -181,5 +181,22 @@
         }
       ]
     }
+  },
+  "POST /api/comments/:comment_id": {
+    "description": "allows the client to create an article",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "title": "Seafood substitutions are increasing",
+          "topic": "cooking",
+          "author": "weegembump",
+          "body": "Text from the article..",
+          "created_at": "2018-05-30T15:59:13.341Z",
+          "votes": 0,
+          "comment_count": 0
+        }
+      ]
+    }
   }
 }
