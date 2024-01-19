@@ -490,7 +490,7 @@ describe("articles", () => {
           expect(msg).toBe("article_id does not exist");
         });
     });
-    it("returns a status code 400 with the message 'bad request' if passed an invalid article_id", () => {
+    it("returns a status code 400 with the message 'bad request invalid data type' if passed an invalid article_id", () => {
       return request(app)
         .post("/api/articles/inValid/comments")
         .send({ username: "rogersop", body: "wowzers" })
@@ -507,7 +507,7 @@ describe("articles", () => {
         .expect(404)
         .then(({ body }) => {
           const { msg } = body;
-          expect(msg).toBe("user does not exist");
+          expect(msg).toBe("username does not exist");
         });
     });
     it("returns a status code 400 with the message 'both username and comment body is required' if client doesnt send all the required data fields", () => {

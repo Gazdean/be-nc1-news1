@@ -103,7 +103,7 @@ exports.createArticleCommentsByArticleId = (articleId, username, body) => {
       )
       .then(({ rows }) => {
         if (rows.length === 0) {
-          return Promise.reject({ status: 404, msg: "user does not exist" });
+          return Promise.reject({ status: 404, msg: "username does not exist" });
         } else {
           return db
             .query(

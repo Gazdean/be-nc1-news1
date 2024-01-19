@@ -6,6 +6,8 @@ const {
   updateArticlesByArticleId,
 } = require("../models/articles.model.js");
 
+const {checkValueExists} = require("../api-utils.js")
+
 exports.getArticlesById = (req, res, next) => {
   const articleId = req.params.article_id;
   fetchArticlesById(articleId)
@@ -29,8 +31,8 @@ exports.getAllArticles = (req, res, next) => {
 exports.getArticleCommentsByArticleId = (req, res, next) => {
   const articleId = req.params.article_id;
   const allPromises = Promise.all([
-    fetchArticlesById(articleId),
-    fetchArticleCommentsByArticleId(articleId),
+    checkValueExists(articleId, "article_id", "articles"),
+    fetchArticleCommentsByArticleId(articleId)
   ]);
   allPromises
     .then((result) => {
@@ -54,7 +56,7 @@ exports.patchArticlesByArticleId = (req, res, next) => {
   const articleId = req.params.article_id;
   const incVotes = req.body.inc_votes;
   const allPromises = Promise.all([
-    fetchArticlesById(articleId),
+    checkValueExists(articleId, "article_id", "articles"),
     updateArticlesByArticleId(articleId, incVotes),
   ]);
   allPromises
