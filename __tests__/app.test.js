@@ -236,35 +236,37 @@ describe("articles", () => {
           expect(articles).toBeSortedBy("created_at", { descending: true });
         });
     });
-    it("allows the client to query /api/articles by topic", () => {
-      return request(app)
-        .get("/api/articles?topic=mitch")
-        .expect(200)
-        .then(({ body }) => {
-          const { articles } = body;
-          expect(articles.length).toBe(12);
-          articles.forEach((article) => {
-            expect(article.topic).toBe("mitch");
+    describe("topic query", () => {
+      it("allows the client to query /api/articles by topic", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(12);
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
           });
-        });
-    });
-    it("returns status code 404 and the msg 'topic does not exist' if passed a valid but non existant topic", () => {
-      return request(app)
-        .get("/api/articles?topic=doggy")
-        .expect(404)
-        .then(({ body }) => {
-          const { msg } = body;
-          expect(msg).toBe("topic does not exist");
-        });
-    });
-    it("returns status code 200 and an empty array if passed a valid topic that has no articles", () => {
-      return request(app)
-        .get("/api/articles?topic=paper")
-        .expect(200)
-        .then(({ body }) => {
-          const { articles } = body;
-          expect(articles.length).toBe(0);
-        });
+      });
+      it("returns status code 404 and the msg 'topic does not exist' if passed a valid but non existant topic", () => {
+        return request(app)
+          .get("/api/articles?topic=doggy")
+          .expect(404)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe("topic does not exist");
+          });
+      });
+      it("returns status code 200 and an empty array if passed a valid topic that has no articles", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(0);
+          });
+      });
     });
     describe("sort_by query", () => {
       it("allows the client to use the query sort_by=created_at which sorts the articles by created_at in descending order", () => {
@@ -399,6 +401,98 @@ describe("articles", () => {
           .then(({ body }) => {
             const { msg } = body;
             expect(msg).toBe("bad request in valid order by");
+          });
+      });
+    });
+    describe("limit query", () => {
+      it("returns status code 200 a limited amount of article objects defaults to 10", () => {
+        return request(app)
+          .get("/api/articles?limit=5")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(10);
+          });
+      });
+      it("returns status code 200 a limited amount of article objects if the limit is > 10 it uses that value", () => {
+        return request(app)
+          .get("/api/articles?limit=13")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(13);
+          });
+      });
+      it("returns status code 200 a limited amount of article objects, if p = 2 it will return the second page of articles up to the limit ", () => {
+        return request(app)
+          .get("/api/articles?limit=10&&p=2")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(3);
+          });
+      });
+      it("returns status code 200 a limited amount of article objects, if p = 2 it will return the second page of articles up to the limit ", () => {
+        return request(app)
+          .get("/api/articles?limit=10&&p=3")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(0);
+          });
+      });
+      it("returns status code 200 a limited amount of article objects, if p = 3 it will return the second page of articles up to the limit ", () => {
+        return request(app)
+          .get("/api/articles?limit=10&&p=3")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(0);
+          });
+      });
+      it("returns status code 400 and the msg 'bad request incorrect data types' if limit is not a number", () => {
+        return request(app)
+          .get("/api/articles?limit=invalid&&p=3")
+          .expect(400)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe("bad request incorrect data types");
+          });
+      });
+      it("returns status code 400 and the msg 'bad request incorrect data types' if p is not a number", () => {
+        return request(app)
+          .get("/api/articles?limit=5&&p=invalid")
+          .expect(400)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe("bad request incorrect data types");
+          });
+      });
+      it("returns status code 200 and the first 10 articles if p or limit are negative' if p is not a number", () => {
+        return request(app)
+          .get("/api/articles?limit=-5&&p=-3")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(10);
+          });
+      });
+      it("returns status code 200 and requested articles if used with topic query", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch&&limit=10&&p=2")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(2);
+          });
+      });
+      it("returns status code 200 and requested articles if used with order query", () => {
+        return request(app)
+          .get("/api/articles?order=asc&&limit=10&&p=1")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(10);
           });
       });
     });
@@ -640,19 +734,19 @@ describe("articles", () => {
           article_img_url: "https://validurl",
         })
         .expect(201)
-        .then(( {body} ) => {
-          const article = body.article
-          expect(Object.keys(article).length).toBe(9)
+        .then(({ body }) => {
+          const article = body.article;
+          expect(Object.keys(article).length).toBe(9);
           expect(article.author).toBe("butter_bridge"),
-          expect(article.title).toBe("hey"),
-          expect(article.body).toBe("wowzers"),
-          expect(article.topic).toBe("mitch"),
-          expect(article.article_img_url).toBe("https://validurl"),
-          expect(typeof article.article_id).toBe("number"),
-          expect(article.votes).toBe(0),
-          expect(typeof article.created_at).toBe("string"),
-          expect(article.comment_count).toBe(0)
-        })
+            expect(article.title).toBe("hey"),
+            expect(article.body).toBe("wowzers"),
+            expect(article.topic).toBe("mitch"),
+            expect(article.article_img_url).toBe("https://validurl"),
+            expect(typeof article.article_id).toBe("number"),
+            expect(article.votes).toBe(0),
+            expect(typeof article.created_at).toBe("string"),
+            expect(article.comment_count).toBe(0);
+        });
     });
     it("ignores extra key value pairs and returns a 201 status code and the created article", () => {
       return request(app)
@@ -663,22 +757,22 @@ describe("articles", () => {
           body: "wowzers",
           topic: "mitch",
           article_img_url: "https://validurl",
-          number: 9
+          number: 9,
         })
         .expect(201)
-        .then(( {body} ) => {
-          const article = body.article
-          expect(Object.keys(article).length).toBe(9)
+        .then(({ body }) => {
+          const article = body.article;
+          expect(Object.keys(article).length).toBe(9);
           expect(article.author).toBe("butter_bridge"),
-          expect(article.title).toBe("hey"),
-          expect(article.body).toBe("wowzers"),
-          expect(article.topic).toBe("mitch"),
-          expect(article.article_img_url).toBe("https://validurl"),
-          expect(typeof article.article_id).toBe("number"),
-          expect(article.votes).toBe(0),
-          expect(typeof article.created_at).toBe("string"),
-          expect(article.comment_count).toBe(0)
-        })
+            expect(article.title).toBe("hey"),
+            expect(article.body).toBe("wowzers"),
+            expect(article.topic).toBe("mitch"),
+            expect(article.article_img_url).toBe("https://validurl"),
+            expect(typeof article.article_id).toBe("number"),
+            expect(article.votes).toBe(0),
+            expect(typeof article.created_at).toBe("string"),
+            expect(article.comment_count).toBe(0);
+        });
     });
     it("returns a 400 status code and the msg 'bad request invalid data type' if author is not a string", () => {
       return request(app)
@@ -691,9 +785,9 @@ describe("articles", () => {
           article_img_url: "https://validurl",
         })
         .expect(400)
-        .then(( {body} ) => {
-          expect(body.msg).toBe("bad request invalid data type")
-        })
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request invalid data type");
+        });
     });
     it("returns a 400 status code and the msg 'bad request invalid data type' if title is not a string", () => {
       return request(app)
@@ -706,9 +800,9 @@ describe("articles", () => {
           article_img_url: "https://validurl",
         })
         .expect(400)
-        .then(( {body} ) => {
-          expect(body.msg).toBe("bad request invalid data type")
-        })
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request invalid data type");
+        });
     });
     it("returns a 400 status code and the msg 'bad request invalid data type' if body is not a string", () => {
       return request(app)
@@ -721,9 +815,9 @@ describe("articles", () => {
           article_img_url: "https://validurl",
         })
         .expect(400)
-        .then(( {body} ) => {
-          expect(body.msg).toBe("bad request invalid data type")
-        })
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request invalid data type");
+        });
     });
     it("returns a 400 status code and the msg 'bad request invalid data type' if topic is not a string", () => {
       return request(app)
@@ -736,9 +830,9 @@ describe("articles", () => {
           article_img_url: "https://validurl",
         })
         .expect(400)
-        .then(( {body} ) => {
-          expect(body.msg).toBe("bad request invalid data type")
-        })
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request invalid data type");
+        });
     });
     it("returns a 400 status code and the msg 'bad request invalid data type' if article_img_url is not a string", () => {
       return request(app)
@@ -751,9 +845,9 @@ describe("articles", () => {
           article_img_url: 1,
         })
         .expect(400)
-        .then(( {body} ) => {
-          expect(body.msg).toBe("bad request invalid data type")
-        })
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request invalid data type");
+        });
     });
     it("returns a 400 status code and the msg 'bad request all requested properties are required' if the client doesnt supply the correct data", () => {
       return request(app)
@@ -764,9 +858,11 @@ describe("articles", () => {
           body: "wowzers",
         })
         .expect(400)
-        .then(( {body} ) => {
-          expect(body.msg).toBe("bad request all requested properties are required")
-        })
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "bad request all requested properties are required"
+          );
+        });
     });
     it("returns a 400 status code and the msg 'username does not exist' if sent an author thats not in users", () => {
       return request(app)
@@ -779,9 +875,9 @@ describe("articles", () => {
           article_img_url: "https://validurl",
         })
         .expect(404)
-        .then(( {body} ) => {
-          expect(body.msg).toBe("username does not exist")
-        })
+        .then(({ body }) => {
+          expect(body.msg).toBe("username does not exist");
+        });
     });
     it("returns a 400 status code and the msg 'topic does not exist' if sent a topic thats not in topics", () => {
       return request(app)
@@ -794,12 +890,12 @@ describe("articles", () => {
           article_img_url: "https://validurl",
         })
         .expect(404)
-        .then(( {body} ) => {
-          expect(body.msg).toBe("topic does not exist")
-        })
+        .then(({ body }) => {
+          expect(body.msg).toBe("topic does not exist");
+        });
     });
   });
-})
+});
 
 describe("comments", () => {
   describe("DELETE /api/comments/:comment_id", () => {

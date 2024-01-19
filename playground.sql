@@ -1,16 +1,7 @@
 \c nc_news_test
 
-      
-SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id)::INT AS comment_count
+SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments. article_id)::int AS comment_count
 FROM articles
-LEFT OUTER JOIN comments ON articles.article_id = comments.article_id
-WHERE articles.topic = $1
-GROUP BY articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url
-ORDER BY articles.created_at DESC;
-
-SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id):: INT AS comment_count
-FROM articles
-LEFT OUTER JOIN comments ON articles.article_id = comments.article_id
-WHERE articles.topic = $1
+LEFT JOIN comments ON comments.article_id = articles.article_id
 GROUP BY articles.article_id
-ORDER BY articles.created_at DESC, [topic];
+OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY;

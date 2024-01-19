@@ -24,7 +24,7 @@ exports.fetchArticlesById = (articleId) => {
     });
 };
 
-exports.fetchAllArticles = (topic, sortBy = "created_at", order = "desc") => {
+exports.fetchAllArticles = (topic, sortBy = "created_at", order = "desc", limit, page) => {
   return fetchAllTopics().then((result) => {
     const validTopics = result.map((topicObj) => {
       return topicObj.slug;
@@ -32,7 +32,7 @@ exports.fetchAllArticles = (topic, sortBy = "created_at", order = "desc") => {
     if (topic && !validTopics.includes(topic)) {
       return Promise.reject({ status: 404, msg: "topic does not exist" });
     } else {
-      const value = [];
+      const values = [];
       const greenLightSortBys = [
         "votes",
         "comment_count",
@@ -51,7 +51,7 @@ exports.fetchAllArticles = (topic, sortBy = "created_at", order = "desc") => {
 
       if (topic) {
         query += ` WHERE topic = $1`;
-        value.push(topic);
+        values.push(topic);
       }
 
       query += ` GROUP BY articles.article_id`;
@@ -64,14 +64,26 @@ exports.fetchAllArticles = (topic, sortBy = "created_at", order = "desc") => {
         });
       }
       if (greenLightOrder.includes(order)) {
-        query += ` ${order};`;
+        query += ` ${order}`;
       } else {
         return Promise.reject({
           status: 400,
           msg: "bad request in valid order by",
         });
       }
-      return db.query(query, value).then(({ rows }) => {
+      if(limit || page){
+        let offset = 0
+        if(!page || page < 0) page = 0
+        if (isNaN(Number(limit)) || isNaN(Number(page))) {
+          return Promise.reject({status: 400, msg: "bad request incorrect data types"})
+        }
+
+        if (limit < 10) limit = 10
+        if (page) offset = ((page -1) * limit)
+      
+        query += ` OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY;`
+      }
+      return db.query(query, values).then(({ rows }) => {
         return rows;
       });
     }

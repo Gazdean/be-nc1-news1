@@ -23,7 +23,10 @@ exports.getAllArticles = (req, res, next) => {
   const sortBy = req.query.sort_by
   const {order} = req.query
   const { topic } = req.query;
-  fetchAllArticles(topic, sortBy, order)
+  const { limit } = req.query;
+  const page = req.query.p;
+
+  fetchAllArticles(topic, sortBy, order, limit, page)
     .then((articles) => {
       res.status(200).send({ articles });
     })
