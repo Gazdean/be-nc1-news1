@@ -783,7 +783,7 @@ describe("articles", () => {
           expect(body.msg).toBe("username does not exist")
         })
     });
-    it("returns a 400 status code and the msg 'slug does not exist' if sent a topic thats not in topics", () => {
+    it("returns a 400 status code and the msg 'topic does not exist' if sent a topic thats not in topics", () => {
       return request(app)
         .post("/api/articles")
         .send({
@@ -795,7 +795,7 @@ describe("articles", () => {
         })
         .expect(404)
         .then(( {body} ) => {
-          expect(body.msg).toBe("slug does not exist")
+          expect(body.msg).toBe("topic does not exist")
         })
     });
   });

@@ -9,6 +9,9 @@ exports.checkValueExists = (value, column, table) => {
       [value]
     )
     .then(({ rows }) => {
+      if (column === "slug") {
+          column = "topic"
+      }
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: `${column} does not exist` });
       }
