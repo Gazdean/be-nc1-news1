@@ -44,7 +44,7 @@ exports.fetchAllArticles = (topic, sortBy = "created_at", order = "desc", limit,
       ];
       const greenLightOrder = ["desc", "asc"];
 
-      let query = `SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments. article_id)::int AS comment_count
+      let query = `SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments. article_id)::INT AS comment_count, COUNT(*) OVER()::INT AS total_count
       FROM articles
       LEFT JOIN comments ON comments.article_id = articles.article_id
       `;

@@ -167,7 +167,6 @@ describe("articles", () => {
           const { articles } = body;
           expect(articles.length).toBe(13);
           articles.forEach((article) => {
-            expect(Object.keys(article).length).toBe(8);
             expect(article).toHaveProperty("author");
             expect(article).toHaveProperty("title");
             expect(article).toHaveProperty("article_id");
@@ -404,7 +403,7 @@ describe("articles", () => {
           });
       });
     });
-    describe("limit query", () => {
+    describe("pagination limit and p queries", () => {
       it("returns status code 200 a limited amount of article objects defaults to 10", () => {
         return request(app)
           .get("/api/articles?limit=5")
@@ -493,6 +492,30 @@ describe("articles", () => {
           .then(({ body }) => {
             const { articles } = body;
             expect(articles.length).toBe(10);
+          });
+      });
+    });
+    describe("total_count", () => {
+      it("returns status code 200 and the total count of results for a request", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            articles.forEach((article) => {
+              expect(article.total_count).toBe(13);
+            });
+          });
+      });
+      it("returns the total count of results for a request or query, before any limits are applied", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            articles.forEach((article) => {
+              expect(article.total_count).toBe(12);
+            });
           });
       });
     });
