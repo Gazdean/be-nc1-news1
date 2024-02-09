@@ -34,5 +34,11 @@ module.exports = [
     name: 'Jess Jelly',
     avatar_url:
       'https://vignette.wikia.nocookie.net/mrmen/images/4/4f/MR_JELLY_4A.jpg/revision/latest?cb=20180104121141'
+  },
+  {
+    username: 'Guest',
+    name: 'Mr Nobody',
+    avatar_url:
+      'https://mrmen.com/cdn/shop/t/37/assets/svg--character--mr-nobody.svg?v=5084170522266080041695746660'
   }
 ];

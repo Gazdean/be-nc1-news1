@@ -17,12 +17,13 @@
           "articles": [
             {
               "title": "Seafood substitutions are increasing",
+              "article_id": 2,
               "topic": "cooking",
               "author": "weegembump",
-              "body": "Text from the article..",
               "created_at": "2018-05-30T15:59:13.341Z",
               "votes": 0,
-              "comment_count": 6
+              "comment_count": 6,
+              "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
             }
           ]
         }
@@ -37,26 +38,6 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
-
-  "GET /api/articles": {
-    "description": "serves an array of all articles, sorted by default in DESC order by created_at b",
-    "queries": ["author", "topic", "sort_by", "order"],
-    "exampleResponse": {
-      "articles": [
-        {
-          "author": "weegembump",
-          "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "created_at": "2018-05-30T15:59:13.341Z",
-          "article_id": 2,
-          "votes": 0,
-          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-          "comment_count": 6
-        }
-      ]
-    }
-  },
-
   "GET /api/articles/:article_id": {
     "description": "serves an object containing the requested article",
     "queries": [],
@@ -118,14 +99,15 @@
     "description": "allows a client to increase or decrease the articles vote value by sending the body {inc_votes: 10} ",
     "queries": [],
     "exampleResponse": {
-      "comment": [
+      "article": [
         {
-          "comment_id": 4,
-          "body": "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
-          "votes": 100,
+          "article_id": 4,
+          "title": "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+          "topic": "food",
           "author": "icellusedkars",
-          "article_id": 1,
-          "created_at": 1583025180000
+          "created_at": 1583025180000,
+          "votes": 100,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
         }
       ]
     }
