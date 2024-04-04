@@ -62,7 +62,7 @@ describe("endpoints", () => {
         .expect(200)
         .then(({ body }) => {
           const { endpoints } = body;
-          const expected = ["description", "queries", "exampleResponse"];
+          const expected = ["description", "queries", "send", "exampleResponse"];
           for (const key in endpoints) {
             expect(Object.keys(endpoints[key])).toEqual(expected);
           }
@@ -672,7 +672,7 @@ describe("articles", () => {
   });
 
   describe("patchArticlesByArticleId", () => {
-    it("returns a status code 201 and the article object with the votes inreased by the correct amount when sent an object with a positive inc_votes key value pair ", () => {
+    it("returns a status code 201 and the article object with the votes increased by the correct amount when sent an object with a positive inc_votes key value pair ", () => {
       return request(app)
         .patch("/api/articles/1")
         .send({ inc_votes: 10 })
@@ -1052,7 +1052,7 @@ describe("comments", () => {
 });
 
 describe("users", () => {
-  describe("/api/users", () => {
+  describe("GET /api/users", () => {
     it("returns status code 200 and an array of user objects with the correct properties", () => {
       return request(app)
         .get("/api/users")
@@ -1085,7 +1085,7 @@ describe("users", () => {
         });
     });
   });
-  describe("/api/users/:username", () => {
+  describe("GET /api/users/:username", () => {
     it("responds with a 200 status code and a user object when a specific user is requested", () => {
       return request(app)
         .get("/api/users/butter_bridge")

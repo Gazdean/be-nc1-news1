@@ -112,7 +112,7 @@ module.exports = [
       "https://images.pexels.com/photos/5483071/pexels-photo-5483071.jpeg?w=700&h=700",
   },
   {
-    title: "The battle for Node.js security has only begun",
+    title: "The battle for Node.js security has only just begun",
     topic: "coding",
     author: "tickle122",
     body: "The founder of the Node Security Project says Node.js still has common vulnerabilities, but progress has been made to make it more secure. Appearing at the recent Node Community Convention in San Francisco, project founder Adam Baldwin, chief security officer at Web consulting company &yet, emphasized risks, protections, and progress. Baldwin sees four risks within the Node ecosystem pertinent to the enterprise: the code dependency tree, bugs, malicious actors, and people. I think of [the dependency tree] more as the dependency iceberg, to be honest, Baldwin said, where your code is the ship and your dependencies that you have with your packaged JSON is that little tiny iceberg at the top. But developers need to be aware of the massive iceberg underneath, he stressed.",
