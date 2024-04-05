@@ -34,7 +34,6 @@ node.js v20.5.1
 
 The dependencies needed are
 
-    husky: v 8.0.2          www.npmjs.com/package/husky
     pg-format: v 1.0.4      www.npmjs.com/package/pg-format
     dotenv: v 16.0.0        www.npmjs.com/package/dotenv       
     express: v 4.18.2       www.npmjs.com/package/express
@@ -42,7 +41,7 @@ The dependencies needed are
 
 The dev dependencies needed are
 
-    
+    husky: v 8.0.2          www.npmjs.com/package/husky
     jest: v 27.5.1          www.npmjs.com/package/jest
     jest-extended: v 2.0.0  www.npmjs.com/package/jest-extended
     jest-sorted: v 1.0.14   www.npmjs.com/package/jest-sorted
