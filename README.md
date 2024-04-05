@@ -1,22 +1,25 @@
 # Northcoders News API
 
-# Northcoders News API
-
 This project is an API for the which gives the client endpoints to access a databasecreated with PSQL, and 
 using ElephantSQL to create an online location for the database, and Render to host the API.
 The database is composed of news articles, comments on those articles, article topics and users
 
-API link https://newsflash-e6p1.onrender.com
+API link: https://newsflash-e6p1.onrender.com
 
-https://newsflash-e6p1.onrender.com/api
+all endpoints: https://newsflash-e6p1.onrender.com/api
 
-this endpoint give the client all of the possible endpoints
-including :-    a short description
-                the queries that can be used
-                and an example of the response
+This gives the client all of the possible endpoints
+including : 
+- A short description
+- The queries that can be used (an empty array [] means there are no queries available)
+- The data needed for a patch or post request (an empty object {} means no data needs to be sent)
+- An example of the response
 
-The repsoitory is available on www.github.com/Gazdean/be-nc-news
-In the terminal run `git clone <github-link-here>` - makes a local copy of the remote repo at the specified link
+
+The repsoitory is available on https://www.github.com/Gazdean/be-nc-news
+<br>To make a copy of the project copy the repo address from github then
+in the terminal run <br><br>`git clone <github-link-here>` <br><br>
+This makes a local copy of the remote repo from the specified link
 
 
 You will need to create two .env files this project: .env.test and .env.development.
