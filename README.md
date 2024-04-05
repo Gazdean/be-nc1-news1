@@ -34,18 +34,21 @@ node.js v20.5.1
 
 The dependencies needed are
 
-    pg-format: v 1.0.4      www.npmjs.com/package/pg-format
-    dotenv: v 16.0.0        www.npmjs.com/package/dotenv       
-    express: v 4.18.2       www.npmjs.com/package/express
-    pg: v 8.11.3            www.npmjs.com/package/pg
+- pg-format: v 1.0.4      https://www.npmjs.com/package/pg-format
+- dotenv: v 16.0.0        https://www.npmjs.com/package/dotenv       
+- express: v 4.18.2       https://www.npmjs.com/package/express
+- pg: v 8.11.3            https://www.npmjs.com/package/pg
 
 The dev dependencies needed are
 
-    husky: v 8.0.2          www.npmjs.com/package/husky
-    jest: v 27.5.1          www.npmjs.com/package/jest
-    jest-extended: v 2.0.0  www.npmjs.com/package/jest-extended
-    jest-sorted: v 1.0.14   www.npmjs.com/package/jest-sorted
-    supertest: v 6.3.3      www.npmjs.com/package/supertest
+- cors: 2.8.5,            https://www.npmjs.com/package/cors
+- husky: v 8.0.2          https://www.npmjs.com/package/husky
+- jest: v 27.5.1          https://www.npmjs.com/package/jest
+- jest-extended: v 2.0.0  https://www.npmjs.com/package/jest-extended
+- jest-sorted: v 1.0.14   https://www.npmjs.com/package/jest-sorted
+- supertest: v 6.3.3      https://www.npmjs.com/package/supertest
+
+When making requests to the API from a React app, you will run into a Cross Origin Resource Sharing (CORS) error. To enable requests on the backend from my frontend react project https://github.com/Gazdean/fe-nc-news I installed the CORS package from npm
 
 to set up the database run npm `setup-dbs`
 to seed the database run `npm run seed`
